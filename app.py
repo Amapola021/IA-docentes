@@ -74,53 +74,72 @@ st.write("---")
 obs_punteo = st.text_area("4. Escribí las características del estudiante (Formato Punteo/Lista):", height=150, placeholder="- Logró registrar su nombre propio...")
 st.write("---")
 
-if st.button("✨ Generar Informe Completo Estructurado"):
-    if GOOGLE_API_KEY == "TU_API_KEY_AQUÍ": st.error("⚠️ Poné tu API Key en la línea 6.")
-    elif not dicc_sel: st.warning("⚠️ Seleccioná al menos un área y contenido.")
-    elif not obs_punteo.strip(): st.warning("⚠️ Escribí algunas observaciones.")
-    else:
-        with st.spinner("⏳ Creando tu informe... en segundos estará listo. Por favor, no cierres la página."):
-            try:
-                cuerpo = generar_informe_estructurado(sala_sel, dicc_sel, obs_punteo, formato_sel)
-                
-                cuerpo_anonimizado = cuerpo.replace("[Nombre del Alumno]", "...........................")
-                
-                pdf = PDFInforme()
-                pdf.add_page()
-                pdf.set_font("Arial", size=11)
-                
-                pdf.set_font("Arial", 'B', 11)
-                pdf.cell(0, 6, f"PERÍODO A EVALUAR: {per_evaluar}", ln=True)
-                pdf.set_font("Arial", size=11)
-                pdf.cell(0, 6, "Nombre y Apellido del Alumno: ............................................................ ", ln=True)
-                pdf.cell(0, 6, f"Jardín N°: {c_jardin if c_jardin else '______________________'}", ln=True)
-                pdf.cell(0, 6, f"Sección / Sala: {sala_sel}", ln=True)
-                pdf.cell(0, 6, f"Docente: {c_docente if c_docente else '______________________'}", ln=True)
-                pdf.ln(3)
-                
-                pdf.set_fill_color(245, 245, 245)
-                pdf.cell(0, 8, f" REGISTRO DE ASISTENCIA: Inasistencias en el período: [ {inasistencias} ]", ln=True, fill=True, border=1)
-                pdf.ln(5)
-                
-                pdf.multi_cell(0, 6, cuerpo_anonimizado.encode('latin-1', 'replace').decode('latin-1'))
-                pdf.ln(20)
-                
-                pdf.cell(60, 6, "____________________", ln=0, align='C')
-                pdf.cell(60, 6, "____________________", ln=0, align='C')
-                pdf.cell(60, 6, "____________________", ln=1, align='C')
-                pdf.cell(60, 5, "Firma del Docente", ln=0, align='C')
-                pdf.cell(60, 5, "Firma del Directivo", ln=0, align='C')
-                pdf.cell(60, 5, "Firma Adulto Responsable", ln=1, align='C')
-                
-                os.makedirs("generated", exist_ok=True)
-                pdf_path = "generated/informe_trayectoria_inicial.pdf"
-                pdf.output(pdf_path)
-                
-                st.success("¡Informe integral generado con éxito!")
-                st.markdown("### 📄 Vista Previa del Texto")
-                st.text_area("Texto redactado:", value=cuerpo_anonimizado, height=250)
-                
-                with open(pdf_path, "rb") as pdf_file:
-                    st.download_button(label="💾 Descargar Informe Oficial en PDF", data=pdf_file.read(), file_name=f"Informe_{sala_sel.replace(' ', '_')}.pdf", mime="application/pdf")
-            except Exception as e:
-                st.error(f"Error al procesar: {e}")
+# =========================================================================
+# LÓGICA DE CONTROL: 3 INFORMES GRATIS FREEMIUM
+# =========================================================================
+if "informes_generados" not in st.session_state:
+    st.session_state.informes_generados = 0
+
+if st.session_state.informes_generados >= 3:
+    st.warning("⚠️ Has alcanzado el límite de 3 informes gratuitos.")
+    st.info("Para seguir generando informes ilimitados y potenciar tus clases, adquiere nuestro pase premium.")
+    st.link_button("🚀 Acceder a Informes Ilimitados", "https://mercadopago.com.ar") # Link temporal de Mercado Pago
+
+else:
+    # Tu botón original dentro del bloque de control
+    if st.button("✨ Generar Informe Completo Estructurado"):
+        if GOOGLE_API_KEY == "TU_API_KEY_AQUÍ": st.error("⚠️ Poné tu API Key en la línea 6.")
+        elif not dicc_sel: st.warning("⚠️ Seleccioná al menos un área y contenido.")
+        elif not obs_punteo.strip(): st.warning("⚠️ Escribí algunas observaciones.")
+        else:
+            with st.spinner("⏳ Creando tu informe... en segundos estará listo. Por favor, no cierres la página."):
+                try:
+                    cuerpo = generar_informe_estructurado(sala_sel, dicc_sel, obs_punteo, formato_sel)
+                    
+                    cuerpo_anonimizado = cuerpo.replace("[Nombre del Alumno]", "...........................")
+                    
+                    pdf = PDFInforme()
+                    pdf.add_page()
+                    pdf.set_font("Arial", size=11)
+                    
+                    pdf.set_font("Arial", 'B', 11)
+                    pdf.cell(0, 6, f"PERÍODO A EVALUAR: {per_evaluar}", ln=True)
+                    pdf.set_font("Arial", size=11)
+                    pdf.cell(0, 6, "Nombre y Apellido del Alumno: ............................................................ ", ln=True)
+                    pdf.cell(0, 6, f"Jardín N°: {c_jardin if c_jardin else '______________________'}", ln=True)
+                    pdf.cell(0, 6, f"Sección / Sala: {sala_sel}", ln=True)
+                    pdf.cell(0, 6, f"Docente: {c_docente if c_docente else '______________________'}", ln=True)
+                    pdf.ln(3)
+                    
+                    pdf.set_fill_color(245, 245, 245)
+                    pdf.cell(0, 8, f" REGISTRO DE ASISTENCIA: Inasistencias en el período: [ {inasistencias} ]", ln=True, fill=True, border=1)
+                    pdf.ln(5)
+                    
+                    pdf.multi_cell(0, 6, cuerpo_anonimizado.encode('latin-1', 'replace').decode('latin-1'))
+                    pdf.ln(20)
+                    
+                    pdf.cell(60, 6, "____________________", ln=0, align='C')
+                    pdf.cell(60, 6, "____________________", ln=0, align='C')
+                    pdf.cell(60, 6, "____________________", ln=1, align='C')
+                    pdf.cell(60, 5, "Firma del Docente", ln=0, align='C')
+                    pdf.cell(60, 5, "Firma del Directivo", ln=0, align='C')
+                    pdf.cell(60, 5, "Firma Adulto Responsable", ln=1, align='C')
+                    
+                    os.makedirs("generated", exist_ok=True)
+                    pdf_path = "generated/informe_trayectoria_inicial.pdf"
+                    pdf.output(pdf_path)
+                    
+                    st.success("¡Informe integral generado con éxito!")
+                    st.markdown("### 📄 Vista Previa del Texto")
+                    st.text_area("Texto redactado:", value=cuerpo_anonimizado, height=250)
+                    
+                    with open(pdf_path, "rb") as pdf_file:
+                        st.download_button(label="💾 Descargar Informe Oficial en PDF", data=pdf_file.read(), file_name=f"Informe_{sala_sel.replace(' ', '_')}.pdf", mime="application/pdf")
+                    
+                    # Cuentas el informe exitoso e informas al docente cuántos le quedan
+                    st.session_state.informes_generados += 1
+                    disponibles = 3 - st.session_state.informes_generados
+                    st.info(f"💡 Te quedan {disponibles} informes gratuitos.")
+                    
+                except Exception as e:
+                    st.error(f"Error al procesar: {e}")
