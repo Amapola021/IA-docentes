@@ -1,3 +1,4 @@
+
 import streamlit as st, google.generativeai as genai, os
 from contenidos import base_datos_pba
 from fpdf import FPDF
@@ -92,7 +93,6 @@ if st.session_state.informes_generados >= limite_actual:
     
     # Validamos que sea un número de operación (10 u 11 dígitos numéricos)
     if codigo_ingresado.isdigit() and (len(codigo_ingresado) == 10 or len(codigo_ingresado) == 11):
-
         limite_actual = 200  # Se le activa el pase completo para todo el año
         st.success("✅ ¡Pago verificado con éxito! Se ha activado tu Pase Premium (200 informes disponibles).")
     else:
@@ -101,8 +101,11 @@ if st.session_state.informes_generados >= limite_actual:
         
         st.info("🛒 Adquirí tu Pase Premium para desbloquear la aplicación de forma inmediata:")
         
-        # LINK DE MERCADO PAGO (Vas a reemplazar las comillas con tu link corto real mpago.la/...)
-       st.link_button("🚀 Adquirir Pase Premium - Acceso Total", "https://mpago.la")
+        # LINK DE MERCADO PAGO
+        st.link_button("🚀 Adquirir Pase Premium - Acceso Total", "https://mpago.la")
+        st.markdown("<small style='color: gray;'>💡 Al finalizar el pago, Mercado Pago te mostrará un comprobante con un 'Número de operación'. Copiá ese número y pegalo en el casillero de arriba.</small>", unsafe_allow_html=True)
+
+st.write("---")
 st.markdown("📩 **¿Tuviste algún inconveniente o necesitas soporte?** Escribinos a: `tu-correo@gmail.com`")
 
 # Control de bloqueo final
@@ -111,14 +114,16 @@ if st.session_state.informes_generados >= limite_actual:
 else:
     # Tu botón original dentro del bloque autorizado
     if st.button("✨ Generar Informe Completo Estructurado"):
-        if GOOGLE_API_KEY == "TU_API_KEY_AQUÍ": st.error("⚠️ Poné tu API Key en la línea 6.")
-        elif not dicc_sel: st.warning("⚠️ Seleccioná al menos un área y contenido.")
-        elif not obs_punteo.strip(): st.warning("⚠️ Escribí algunas observaciones.")
+        if GOOGLE_API_KEY == "TU_API_KEY_AQUÍ": 
+            st.error("⚠️ Poné tu API Key en la línea 6.")
+        elif not dicc_sel: 
+            st.warning("⚠️ Seleccioná al menos un área y contenido.")
+        elif not obs_punteo.strip(): 
+            st.warning("⚠️ Escribí algunas observaciones.")
         else:
             with st.spinner("⏳ Creando tu informe... en segundos estará listo. Por favor, no cierres la página."):
                 try:
                     cuerpo = generar_informe_estructurado(sala_sel, dicc_sel, obs_punteo, formato_sel)
-                    
                     cuerpo_anonimizado = cuerpo.replace("[Nombre del Alumno]", "...........................")
                     
                     pdf = PDFInforme()
@@ -138,37 +143,25 @@ else:
                     pdf.cell(0, 8, f" REGISTRO DE ASISTENCIA: Inasistencias en el período: [ {inasistencias} ]", ln=True, fill=True, border=1)
                     pdf.ln(5)
                     
-                    pdf.multi_cell(0, 6, cuerpo_anonimizado.encode('latin-1', 'replace').decode('latin-1'))
-                    pdf.ln(20)
+                    pdf.multi_cell(0, 6, cuerpo_anonimizado)
                     
-                    pdf.cell(60, 6, "____________________", ln=0, align='C')
-                    pdf.cell(60, 6, "____________________", ln=0, align='C')
-                    pdf.cell(60, 6, "____________________", ln=1, align='C')
-                    pdf.cell(60, 5, "Firma del Docente", ln=0, align='C')
-                    pdf.cell(60, 5, "Firma del Directivo", ln=0, align='C')
-                    pdf.cell(60, 5, "Firma Adulto Responsable", ln=1, align='C')
-                    
-                    os.makedirs("generated", exist_ok=True)
-                    pdf_path = "generated/informe_trayectoria_inicial.pdf"
-                    pdf.output(pdf_path)
+                    ruta_pdf = "generado/informe_bandeja_inicial.pdf"
+                    pdf.output(ruta_pdf)
                     
                     st.success("¡Informe integral generado con éxito!")
-                    st.markdown("### 📄 Vista Previa del Texto")
+                    st.subheader("👀 Vista previa del texto")
                     st.text_area("Texto redactado:", value=cuerpo_anonimizado, height=250)
                     
-                    with open(pdf_path, "rb") as pdf_file:
-                        st.download_button(label="💾 Descargar Informe Oficial en PDF", data=pdf_file.read(), file_name=f"Informe_{sala_sel.replace(' ', '_')}.pdf", mime="application/pdf")
+                    with open(ruta_pdf, "rb") as archivo_pdf:
+                        st.download_button(label="📥 Descargar Informe Oficial en PDF", data=archivo_pdf, file_name="Informe_Trayectoria_Escolar.pdf", mime="application/pdf")
                     
-                    # Contador de informes generados
                     st.session_state.informes_generados += 1
                     disponibles = limite_actual - st.session_state.informes_generados
                     st.info(f"💡 Te quedan {disponibles} informes disponibles.")
-                    
-             except Exception as e:
+                
+                except Exception as e:
                     if "429" in str(e) or "Quota exceeded" in str(e):
-                        st.error("⏳ **El sistema está procesando muchos informes en este momento.**")
-                        st.info("💡 Por favor, espera 30 segundos y vuelve a hacer clic en el botón de generar. ¡Tu información no se perdió!")
+                        st.error("🚨 El sistema está procesando muchos informes en este momento.")
+                        st.info("⏳ Por favor, espera 30 segundos y vuelve a hacer clic en el botón.")
                     else:
-                        st.error(f"Error al procesar: {e}")
-
-                    
+                        st.error(f"🚨 Error al procesar: {e}")
