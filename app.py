@@ -91,7 +91,7 @@ if st.session_state.informes_generados >= limite_actual:
     codigo_ingresado = st.text_input("🔑 Ingresá tu Número de Operación de Mercado Pago (Figural en el comprobante) para activar tu Pase Premium:", placeholder="Ej: 10234567890").strip()
     
     # Validamos que sea un número de operación (10 u 11 dígitos numéricos)
-    if codigo_ingresado.isdigit() and len(codigo_ingresado) in:
+    if codigo_ingresado.isdigit() and len(codigo_ingresado) in [10, 11]:
         limite_actual = 200  # Se le activa el pase completo para todo el año
         st.success("✅ ¡Pago verificado con éxito! Se ha activado tu Pase Premium (200 informes disponibles).")
     else:
