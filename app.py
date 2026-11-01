@@ -75,18 +75,39 @@ obs_punteo = st.text_area("4. Escribí las características del estudiante (Form
 st.write("---")
 
 # =========================================================================
-# LÓGICA DE CONTROL: 3 INFORMES GRATIS FREEMIUM
+# LÓGICA DE CONTROL AUTOMÁTICA: PAGO ÚNICO CON NÚMERO DE OPERACIÓN MP
 # =========================================================================
 if "informes_generados" not in st.session_state:
     st.session_state.informes_generados = 0
 
-if st.session_state.informes_generados >= 3:
-    st.warning("⚠️ Has alcanzado el límite de 3 informes gratuitos.")
-    st.info("Para seguir generando informes ilimitados y potenciar tus clases, adquiere nuestro pase premium.")
-    st.link_button("🚀 Acceder a Informes Ilimitados", "https://mercadopago.com.ar") # Link temporal de Mercado Pago
+limite_actual = 3
+codigo_ingresado = ""
 
+# Si llegó al límite de 3 gratis, exigimos el código de Mercado Pago
+if st.session_state.informes_generados >= limite_actual:
+    st.warning("⚠️ Has alcanzado el límite de 3 informes gratuitos.")
+    
+    # El usuario pega aquí su número de comprobante/operación de Mercado Pago
+    codigo_ingresado = st.text_input("🔑 Ingresá tu Número de Operación de Mercado Pago (Figural en el comprobante) para activar tu Pase Premium:", placeholder="Ej: 10234567890").strip()
+    
+    # Validamos que sea un número de operación (10 u 11 dígitos numéricos)
+    if codigo_ingresado.isdigit() and len(codigo_ingresado) in:
+        limite_actual = 200  # Se le activa el pase completo para todo el año
+        st.success("✅ ¡Pago verificado con éxito! Se ha activado tu Pase Premium (200 informes disponibles).")
+    else:
+        if codigo_ingresado != "":
+            st.error("❌ El número ingresado no es válido. Colocá los 10 u 11 dígitos numéricos de tu comprobante.")
+        
+        st.info("🛒 Adquirí tu Pase Premium para desbloquear la aplicación de forma inmediata:")
+        
+        # LINK DE MERCADO PAGO (Vas a reemplazar las comillas con tu link corto real mpago.la/...)
+        st.link_button("🚀 Adquirir Pase Premium - Acceso Total", "https://mercadopago.com.ar")
+
+# Control de bloqueo final
+if st.session_state.informes_generados >= limite_actual:
+    st.info("La aplicación se encuentra pausada hasta que ingreses tu número de comprobante arriba.")
 else:
-    # Tu botón original dentro del bloque de control
+    # Tu botón original dentro del bloque autorizado
     if st.button("✨ Generar Informe Completo Estructurado"):
         if GOOGLE_API_KEY == "TU_API_KEY_AQUÍ": st.error("⚠️ Poné tu API Key en la línea 6.")
         elif not dicc_sel: st.warning("⚠️ Seleccioná al menos un área y contenido.")
@@ -136,10 +157,10 @@ else:
                     with open(pdf_path, "rb") as pdf_file:
                         st.download_button(label="💾 Descargar Informe Oficial en PDF", data=pdf_file.read(), file_name=f"Informe_{sala_sel.replace(' ', '_')}.pdf", mime="application/pdf")
                     
-                    # Cuentas el informe exitoso e informas al docente cuántos le quedan
+                    # Contador de informes generados
                     st.session_state.informes_generados += 1
-                    disponibles = 3 - st.session_state.informes_generados
-                    st.info(f"💡 Te quedan {disponibles} informes gratuitos.")
+                    disponibles = limite_actual - st.session_state.informes_generados
+                    st.info(f"💡 Te quedan {disponibles} informes disponibles.")
                     
                 except Exception as e:
                     st.error(f"Error al procesar: {e}")
