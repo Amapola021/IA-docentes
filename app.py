@@ -102,8 +102,8 @@ if st.session_state.informes_generados >= limite_actual:
         st.info("🛒 Adquirí tu Pase Premium para desbloquear la aplicación de forma inmediata:")
         
         # LINK DE MERCADO PAGO (Vas a reemplazar las comillas con tu link corto real mpago.la/...)
-    st.link_button("🚀 Adquirir Pase Premium - Acceso Total", "https://mpago.la")
-    st.markdown("📩 **¿Tuviste algún inconveniente o necesitas soporte?** Escribinos a: `tu-correo@gmail.com`")
+       st.link_button("🚀 Adquirir Pase Premium - Acceso Total", "https://mpago.la")
+st.markdown("📩 **¿Tuviste algún inconveniente o necesitas soporte?** Escribinos a: `tu-correo@gmail.com`")
 
 # Control de bloqueo final
 if st.session_state.informes_generados >= limite_actual:
@@ -164,5 +164,11 @@ else:
                     disponibles = limite_actual - st.session_state.informes_generados
                     st.info(f"💡 Te quedan {disponibles} informes disponibles.")
                     
-                except Exception as e:
-                    st.error(f"Error al procesar: {e}")
+             except Exception as e:
+                    if "429" in str(e) or "Quota exceeded" in str(e):
+                        st.error("⏳ **El sistema está procesando muchos informes en este momento.**")
+                        st.info("💡 Por favor, espera 30 segundos y vuelve a hacer clic en el botón de generar. ¡Tu información no se perdió!")
+                    else:
+                        st.error(f"Error al procesar: {e}")
+
+                    
