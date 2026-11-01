@@ -1,4 +1,3 @@
-
 import streamlit as st, google.generativeai as genai, os
 from contenidos import base_datos_pba
 from fpdf import FPDF
@@ -106,7 +105,7 @@ if st.session_state.informes_generados >= limite_actual:
         st.markdown("<small style='color: gray;'>💡 Al finalizar el pago, Mercado Pago te mostrará un comprobante con un 'Número de operación'. Copiá ese número y pegalo en el casillero de arriba.</small>", unsafe_allow_html=True)
 
 st.write("---")
-st.markdown("📩 **¿Tuviste algún inconveniente o necesitas soporte?** Escribinos a: `tu-correo@gmail.com`")
+st.markdown("📩 **¿Tuviste algún inconveniente o necesitas soporte?** Escribinos a: `iadocentespba@gmail.com`")
 
 # Control de bloqueo final
 if st.session_state.informes_generados >= limite_actual:
@@ -145,6 +144,10 @@ else:
                     
                     pdf.multi_cell(0, 6, cuerpo_anonimizado)
                     
+                    # CORRECCIÓN DE CARPETA AUTOMÁTICA
+                    if not os.path.exists("generado"):
+                        os.makedirs("generado")
+                        
                     ruta_pdf = "generado/informe_bandeja_inicial.pdf"
                     pdf.output(ruta_pdf)
                     
