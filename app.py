@@ -102,8 +102,8 @@ if st.session_state.informes_generados >= limite_actual:
         st.info("🛒 Adquirí tu Pase Premium para desbloquear la aplicación de forma inmediata:")
         
         # LINK DE MERCADO PAGO (Vas a reemplazar las comillas con tu link corto real mpago.la/...)
-       st.link_button("🚀 Adquirir Pase Premium - Acceso Total", "https://mpago.la")
-st.markdown("📩 **¿Tuviste algún inconveniente o necesitas soporte?** Escribinos a: `tu-correo@gmail.com`")
+    st.link_button("🚀 Adquirir Pase Premium - Acceso Total", "https://mpago.la")
+    st.markdown("📩 **¿Tuviste algún inconveniente o necesitas soporte?** Escribinos a: `tu-correo@gmail.com`")
 
 # Control de bloqueo final
 if st.session_state.informes_generados >= limite_actual:
